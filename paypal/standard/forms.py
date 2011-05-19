@@ -35,6 +35,7 @@ class PayPalPaymentsForm(forms.Form):
         ("_xclick", "Buy now or Donations"), 
         ("_cart", "Shopping cart"), 
         ("_xclick-subscriptions", "Subscribe")
+        ("_hosted-payment", 'Paypal Pro Hosted Payment')
     )
     SHIPPING_CHOICES = ((1, "No shipping"), (0, "Shipping"))
     NO_NOTE_CHOICES = ((1, "No Note"), (0, "Include Note"))
@@ -59,6 +60,10 @@ class PayPalPaymentsForm(forms.Form):
     item_name = forms.CharField(widget=ValueHiddenInput())
     item_number = forms.CharField(widget=ValueHiddenInput())
     quantity = forms.CharField(widget=ValueHiddenInput())
+
+    # Required for hosted payment
+    # quantity * amount
+    subtotal = forms.CharField(widget=ValueHiddenInput())
     
     # Subscription Related.
     a1 = forms.CharField(widget=ValueHiddenInput())  # Trial 1 Price
@@ -99,18 +104,30 @@ class PayPalPaymentsForm(forms.Form):
         super(PayPalPaymentsForm, self).__init__(*args, **kwargs)
         self.button_type = button_type
 
+    def get_endpoint(self):
+        if PAYPAL_HOSTED:
+            return HOSTED_POSTBACK_ENDPOINT
+        else:
+            return POSTBACK_ENDPOINT 
+
+    def get_sandbox_endpoint(self):
+        if PAYPAL_HOSTED:
+            return SANDBOX_HOSTED_POSTBACK_ENDPOINT
+        else:
+            return SANDBOX_POSTBACK_ENDPOINT
+
     def render(self):
         return mark_safe(u"""<form action="%s" method="post">
     %s
     <input type="image" src="%s" border="0" name="submit" alt="Buy it Now" />
-</form>""" % (POSTBACK_ENDPOINT, self.as_p(), self.get_image()))
+</form>""" % (self.get_endpoint(), self.as_p(), self.get_image()))
         
         
     def sandbox(self):
         return mark_safe(u"""<form action="%s" method="post">
     %s
     <input type="image" src="%s" border="0" name="submit" alt="Buy it Now" />
-</form>""" % (SANDBOX_POSTBACK_ENDPOINT, self.as_p(), self.get_image()))
+</form>""" % (self.get_sandbox_endpoint(), self.as_p(), self.get_image()))
         
     def get_image(self):
         return {

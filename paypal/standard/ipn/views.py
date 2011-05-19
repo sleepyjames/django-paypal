@@ -32,6 +32,7 @@ def ipn(request, item_check_callable=None):
             del data[date_field]
 
     form = PayPalIPNForm(data)
+
     if form.is_valid():
         try:
             #When commit = False, object is returned without saving to DB.
