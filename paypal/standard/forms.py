@@ -34,7 +34,7 @@ class PayPalPaymentsForm(forms.Form):
     CMD_CHOICES = (
         ("_xclick", "Buy now or Donations"), 
         ("_cart", "Shopping cart"), 
-        ("_xclick-subscriptions", "Subscribe")
+        ("_xclick-subscriptions", "Subscribe"),
         ("_hosted-payment", 'Paypal Pro Hosted Payment')
     )
     SHIPPING_CHOICES = ((1, "No shipping"), (0, "Shipping"))
