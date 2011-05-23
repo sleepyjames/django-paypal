@@ -5,6 +5,7 @@ class PayPalSettingsError(Exception):
     
 
 TEST = getattr(settings, "PAYPAL_TEST", True)
+PAYPAL_HOSTED = getattr(settings, "PAYPAL_HOSTED", False)
 
 
 RECEIVER_EMAIL = settings.PAYPAL_RECEIVER_EMAIL
