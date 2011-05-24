@@ -103,6 +103,14 @@ class PayPalPaymentsForm(forms.Form):
     def __init__(self, button_type="buy", *args, **kwargs):
         super(PayPalPaymentsForm, self).__init__(*args, **kwargs)
         self.button_type = button_type
+        
+        # Pro Hosted payments required settings cmd
+        # and subtotal as apposed to amount
+        if PAYPAL_HOSTED:
+            self.initial.update({
+                'subtotal' : self.initial['amount'],
+                'cmd' : '_hosted-payment'
+            })
 
     def get_endpoint(self):
         if PAYPAL_HOSTED:
@@ -117,17 +125,21 @@ class PayPalPaymentsForm(forms.Form):
             return SANDBOX_POSTBACK_ENDPOINT
 
     def render(self):
-        return mark_safe(u"""<form action="%s" method="post">
-    %s
-    <input type="image" src="%s" border="0" name="submit" alt="Buy it Now" />
-</form>""" % (self.get_endpoint(), self.as_p(), self.get_image()))
+        return mark_safe(u"""
+            <form action="%s" method="post">
+            %s
+            <input type="image" src="%s" border="0" name="submit" alt="Buy it Now" />
+        </form>""" % (self.get_endpoint(), self.as_p(), self.get_image()))
         
         
     def sandbox(self):
-        return mark_safe(u"""<form action="%s" method="post">
-    %s
-    <input type="image" src="%s" border="0" name="submit" alt="Buy it Now" />
-</form>""" % (self.get_sandbox_endpoint(), self.as_p(), self.get_image()))
+        return mark_safe(u"""
+            <form action="%s" method="post">
+                %s
+                <input type="image" src="%s" border="0" name="submit" alt="Buy it Now" />
+                <button class="button"><span>Proceed to payment</span></button>
+            </form>
+        """ % (self.get_sandbox_endpoint(), self.as_p(), self.get_image()))
         
     def get_image(self):
         return {
